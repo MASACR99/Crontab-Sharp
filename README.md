@@ -48,7 +48,7 @@ Things to keep in mind about the project:
 - Due to the delay between the result of the crontab being given and your implementation using that data your timer might be off by a little bit, to get the most accurate execution try to use the CrontabTimeParser method as close as possible to when you're gonna use that data
 - Days of week start as Sunday = 0 because of the DateTime.DayOfWeek enum implementation, that also means that the crontab string has the same format as typical implementations
 - If you're gonna use that time to create a C# timer, its max size is 2,147,483,647 or about 25 days, so check the result from the crontab parsing or the Timer will throw an error ;)
-- Yes I do understand that my code is not very easy to read or is visually appealing to most, but that's how my brain works so ![Cope](https://c.tenor.com/KvuKMxbmqwAAAAAC/tenor.gif)
+- Yes I do understand that my code is not very easy to read or is visually appealing to most, but that's how my brain works so ![Cope]([https://c.tenor.com/KvuKMxbmqwAAAAAC/tenor.gif](https://github.com/MASACR99/My-gifs-repo/blob/main/COPE_MALD_SEETHE.gif?raw=true))
 
 ## Disclaimer
 This software is provided "as is" without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
