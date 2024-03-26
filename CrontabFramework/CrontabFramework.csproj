@@ -1,26 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <Nullable>enable</Nullable>
-    <Title>Crontab# Framework</Title>
-    <Description>Crontab# package for .net framework 2.1, returns the time in milliseconds to the next execution based on the input crontab string. See the README for more details</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>Crontab; Cron; Timer</PackageTags>
-    <Copyright>See LICENSE.md</Copyright>
-    <Authors>MASA</Authors>
-    <Company>-</Company>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <RepositoryUrl>https://github.com/MASACR99/Crontab-Sharp</RepositoryUrl>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks> net46;net461;net462;net47;net471;net472;net48;net481</TargetFrameworks>
+		<Title>Crontab# Framework</Title>
+		<Description>Crontab# package for .net framework 4.6 up to 4.8.1, returns the time in milliseconds to the next execution based on the input crontab string. See the README for more details</Description>
+		<PackageTags>Crontab; Cron; Timer</PackageTags>
+		<Copyright>See LICENSE.md</Copyright>
+		<Authors>MASA</Authors>
+		<Company>-</Company>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<RepositoryUrl>https://github.com/MASACR99/Crontab-Sharp</RepositoryUrl>
+		<VersionPrefix>1.0.2</VersionPrefix>
+		<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
+		<FileVersion>$(VersionPrefix)</FileVersion>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Update="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
+	<ItemGroup>
+		<None Include="..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 </Project>

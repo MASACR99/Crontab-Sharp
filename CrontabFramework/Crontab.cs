@@ -93,11 +93,11 @@ namespace CrontabFramework
                 return ProcessBaseCase(intResult, maxValue);
             else if (v.Length == 1 && v[0] == '*')
                 return ProcessStarCase(sequenceStart, maxValue);
-            else if (v.Contains('/'))
+            else if (v.Contains("/"))
                 return ProcessDivisorCase(v, sequenceStart, maxValue);
-            else if (v.Contains('-'))
+            else if (v.Contains("-"))
                 return ProcessRangeCase(v, sequenceStart, maxValue);
-            else if (v.Contains(','))
+            else if (v.Contains(","))
                 return ProcessListCase(v, sequenceStart, maxValue);
             else
                 throw new Exception("Malformed crontab string");
@@ -202,7 +202,7 @@ namespace CrontabFramework
         private static List<int> ProcessListCase(string v, int sequenceStart, int maxValue)
         {
             var result = new List<int>();
-            var chunks = v.Split(",");
+            var chunks = v.Split(',');
 
             foreach (var chunk in chunks)
             {
