@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Title>Crontab#</Title>
+    <PackageTags>Crontab; Cron; Timer</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Description>Crontab# package for .net core 8.0, returns the time in milliseconds to the next execution based on the input crontab string. See the README for more details</Description>
+    <Company>-</Company>
+    <Authors>MASA</Authors>
+    <Copyright>See LICENSE.md</Copyright>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/MASACR99/Crontab-Sharp</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <Title>Crontab# Framework</Title>
+    <Description>Crontab# package for .net framework 2.1, returns the time in milliseconds to the next execution based on the input crontab string. See the README for more details</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>Crontab; Cron; Timer</PackageTags>
+    <Copyright>See LICENSE.md</Copyright>
+    <Authors>MASA</Authors>
+    <Company>-</Company>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/MASACR99/Crontab-Sharp</RepositoryUrl>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
