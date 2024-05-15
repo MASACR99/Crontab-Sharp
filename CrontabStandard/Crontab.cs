@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System;
-using System.Threading;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CrontabStandard
 {
     /// <summary>
-    /// Crontab class to parse cron format strings and
-    /// returns the closest execution time from now
+    /// Crontab class to parse cron format strings,
+    /// return the closest execution time from a given date
+    /// or precisely execute code on time
     /// </summary>
     public class Crontab
     {
@@ -30,7 +31,6 @@ namespace CrontabStandard
         {
             double timeToExec = CrontabTimeParser(crontabString, null);
             CrontabTimerData timerData = new CrontabTimerData();
-            Timer timer;
 
             timerData.ClassInstance = classInstance;
             timerData.Method = method;
@@ -40,9 +40,9 @@ namespace CrontabStandard
             timerData.Guid = Guid.NewGuid();
 
             if (timeToExec >= Int32.MaxValue)
-                timer = GetMaxTimer(timerData);
+                timerData.Timer = GetMaxTimer(timerData);
             else
-                timer = new Timer(ExecuteMethod, timerData, (int)Math.Round(timeToExec), -1);
+                timerData.Timer = new Timer(ExecuteMethod, timerData, (int)Math.Round(timeToExec), -1);
 
             _Callers.Add(timerData);
 
@@ -127,23 +127,31 @@ namespace CrontabStandard
         /// <param name="initialTimeToCheck">DateTime used to set the starting date to check, useful for checking future executions, if null, DateTime.Now is used</param>
         /// <returns>Total milliseconds to next execution, to be used on timers</returns>
         /// <exception cref="ArgumentException">If crontab string is invalid or unsupported</exception>
-        public static double CrontabTimeParser(string crontabString, DateTime? initialTimeToCheck)
+        public static double CrontabTimeParser(string crontabString, DateTime? initialTimeToCheck = null)
         {
             var separatedValues = crontabString.Split(new char[] { ' ' });
 
-            if (separatedValues.Length != 5)
+            // If not valid types of crontab
+            if (separatedValues.Length != 5 && separatedValues.Length != 6)
                 throw new ArgumentException("Malformed string");
 
-            var minutesList = ParseCrontabChunk(separatedValues[0], 0, 59);
-            var hoursList = ParseCrontabChunk(separatedValues[1], 0, 23);
-            var daysMonthList = ParseCrontabChunk(separatedValues[2], 1, 31);
-            var monthsList = ParseCrontabChunk(separatedValues[3], 1, 12);
-            var daysWeekList = ParseCrontabChunk(separatedValues[4], 0, 6);
+            int arrayIndex = 0;
+            SortedSet<int> secondsList;
+            if (separatedValues.Length == 6)
+                secondsList = ParseCrontabChunk(separatedValues[arrayIndex++], 0, 59);
+            else
+                secondsList = new SortedSet<int> { 0 };
+
+            var minutesList = ParseCrontabChunk(separatedValues[arrayIndex++], 0, 59);
+            var hoursList = ParseCrontabChunk(separatedValues[arrayIndex++], 0, 23);
+            var daysMonthList = ParseCrontabChunk(separatedValues[arrayIndex++], 1, 31);
+            var monthsList = ParseCrontabChunk(separatedValues[arrayIndex++], 1, 12);
+            var daysWeekList = ParseCrontabChunk(separatedValues[arrayIndex++], 0, 6);
 
             DateTime initialDate = initialTimeToCheck ?? DateTime.Now;
 
             //After that combine and calculate closest execution time delay
-            return GetClosestExecutionTimer(initialDate, monthsList, daysMonthList, daysWeekList, hoursList, minutesList);
+            return GetClosestExecutionTimer(initialDate, monthsList, daysMonthList, daysWeekList, hoursList, minutesList, secondsList);
         }
 
         /// <summary>
@@ -156,7 +164,7 @@ namespace CrontabStandard
         /// <param name="hoursList"></param>
         /// <param name="minutesList"></param>
         /// <returns>Time in milliseconds to closest execution</returns>
-        private static double GetClosestExecutionTimer(DateTime date, List<int> monthsList, List<int> daysMonthList, List<int> daysWeekList, List<int> hoursList, List<int> minutesList)
+        private static double GetClosestExecutionTimer(DateTime date, SortedSet<int> monthsList, SortedSet<int> daysMonthList, SortedSet<int> daysWeekList, SortedSet<int> hoursList, SortedSet<int> minutesList, SortedSet<int> secondsList)
         {
             if (monthsList.Contains(date.Month))
             {
@@ -166,9 +174,9 @@ namespace CrontabStandard
                     {
                         if (date.Hour < hour)
                         {
-                            date = new DateTime(date.Year, date.Month, date.Day, hour, minutesList.First(), 0);
+                            date = new DateTime(date.Year, date.Month, date.Day, hour, minutesList.GetEnumerator().Current, secondsList.GetEnumerator().Current);
                             var result = date - DateTime.Now;
-                            return result.TotalMilliseconds;
+                            if (result.TotalMilliseconds > 0) return result.TotalMilliseconds;
                         }
                         else if (date.Hour == hour)
                         {
@@ -176,19 +184,30 @@ namespace CrontabStandard
                             {
                                 if (date.Minute < minute)
                                 {
-                                    date = new DateTime(date.Year, date.Month, date.Day, date.Hour, minute, 0);
+                                    date = new DateTime(date.Year, date.Month, date.Day, date.Hour, minute, secondsList.GetEnumerator().Current);
                                     var result = date - DateTime.Now;
-                                    return result.TotalMilliseconds;
+                                    if (result.TotalMilliseconds > 0) return result.TotalMilliseconds;
+                                }else if(date.Minute == minute)
+                                {
+                                    foreach(var second in secondsList)
+                                    {
+                                        if (date.Second < second)
+                                        {
+                                            date = new DateTime(date.Year, date.Month, date.Day, date.Hour, minute, second);
+                                            var result = date - DateTime.Now;
+                                            if (result.TotalMilliseconds > 0) return result.TotalMilliseconds;
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
                 date = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
-                return GetClosestExecutionTimer(date.AddDays(1), monthsList, daysMonthList, daysWeekList, hoursList, minutesList);
+                return GetClosestExecutionTimer(date.AddDays(1), monthsList, daysMonthList, daysWeekList, hoursList, minutesList, secondsList);
             }
             date = new DateTime(date.Year, date.Month, 1, 0, 0, 0);
-            return GetClosestExecutionTimer(date.AddMonths(1), monthsList, daysMonthList, daysWeekList, hoursList, minutesList);
+            return GetClosestExecutionTimer(date.AddMonths(1), monthsList, daysMonthList, daysWeekList, hoursList, minutesList, secondsList);
         }
 
         /// <summary>
@@ -200,36 +219,28 @@ namespace CrontabStandard
         /// <param name="maxValue"></param>
         /// <returns>List with the different possible values</returns>
         /// <exception cref="Exception"></exception>
-        private static List<int> ParseCrontabChunk(string v, int sequenceStart, int maxValue)
+        private static SortedSet<int> ParseCrontabChunk(string v, int sequenceStart, int maxValue)
         {
             if (int.TryParse(v, out var intResult))
-                return ProcessBaseCase(intResult, maxValue);
-            else if (v.Length == 1 && v[0] == '*')
-                return ProcessStarCase(sequenceStart, maxValue);
-            else if (v.Contains('/'))
-                return ProcessDivisorCase(v, sequenceStart, maxValue);
-            else if (v.Contains('-'))
-                return ProcessRangeCase(v, sequenceStart, maxValue);
-            else if (v.Contains(','))
-                return ProcessListCase(v, sequenceStart, maxValue);
+                return ProcessBaseCase(intResult, sequenceStart, maxValue);
             else
-                throw new Exception("Malformed crontab string");
+                return ProcessListCase(v, sequenceStart, maxValue);
         }
 
-        private static List<int> ProcessBaseCase(int intResult, int maxValue)
+        private static SortedSet<int> ProcessBaseCase(int intResult, int sequenceStart, int maxValue)
         {
-            var result = new List<int>();
+            var result = new SortedSet<int>();
 
-            if (intResult > maxValue)
+            if (intResult > maxValue || intResult < sequenceStart)
                 throw new Exception("Malformed crontab string");
 
             result.Add(intResult);
             return result;
         }
 
-        private static List<int> ProcessStarCase(int sequenceStart, int maxValue)
+        private static SortedSet<int> ProcessStarCase(int sequenceStart, int maxValue)
         {
-            var result = new List<int>();
+            var result = new SortedSet<int>();
 
             for (int i = sequenceStart; i <= maxValue; i++)
             {
@@ -239,70 +250,68 @@ namespace CrontabStandard
             return result;
         }
 
-        private static List<int> ProcessDivisorCase(string v, int sequenceStart, int maxValue)
+        private static SortedSet<int> ProcessDivisorCase(string v, int sequenceStart, int maxValue)
         {
-            var result = new List<int>();
+            var result = new SortedSet<int>();
             var chunks = v.Split('/');
 
             int divisor;
             if (chunks[0].Length == 1 && chunks[0] == "*")
             {
             }
-            else if (int.TryParse(chunks[0], out int parseInt))
+            else if (int.TryParse(chunks[0], out int parseInt) && parseInt >= sequenceStart)
             {
                 sequenceStart = parseInt;
             }
-            else
+            else if (chunks[0].Contains("-"))
             {
-                throw new Exception("Malformed crontab string");
+                var rangeResult = ProcessRangeCase(chunks[0], sequenceStart, maxValue);
+                sequenceStart = rangeResult.First();
+                maxValue = rangeResult.Last();
             }
+            else
+                throw new Exception("Malformed crontab string");
 
             if (int.TryParse(chunks[1], out int intParse))
             {
-                if (intParse > maxValue)
+                if (intParse > maxValue || intParse <= 0)
                     throw new Exception("Malformed crontab string");
 
                 divisor = intParse;
             }
             else
-            {
                 throw new Exception("Malformed crontab string");
-            }
 
-            for (int i = sequenceStart; i <= maxValue; i++)
+            // No need to go 1 by 1 and check if it's divisible,
+            // we can go from the sequenceStart that
+            // we know is a valid value and step with the divisor amount
+            for (int i = sequenceStart; i <= maxValue; i += divisor)
             {
-                if (i % divisor == 0)
-                    result.Add(i);
+                result.Add(i);
             }
 
             return result;
         }
 
-        private static List<int> ProcessRangeCase(string v, int sequenceStart, int maxValue)
+        private static SortedSet<int> ProcessRangeCase(string v, int sequenceStart, int maxValue)
         {
-            var result = new List<int>();
+            var result = new SortedSet<int>();
             var chunks = v.Split('-');
 
-            if (int.TryParse(chunks[0], out int parseInt))
-            {
+            if (int.TryParse(chunks[0], out int parseInt) && parseInt >= sequenceStart)
                 sequenceStart = parseInt;
-            }
             else
-            {
                 throw new Exception("Malformed crontab string");
-            }
 
             if (int.TryParse(chunks[1], out int intParse))
             {
-                if (intParse > maxValue)
+                if (intParse > maxValue || intParse < sequenceStart)
                     throw new Exception("Malformed crontab string");
 
                 maxValue = intParse;
             }
             else
-            {
                 throw new Exception("Malformed crontab string");
-            }
 
             for (int i = sequenceStart; i <= maxValue; i++)
             {
@@ -312,17 +321,47 @@ namespace CrontabStandard
             return result;
         }
 
-        private static List<int> ProcessListCase(string v, int sequenceStart, int maxValue)
+        private static SortedSet<int> ProcessListCase(string v, int sequenceStart, int maxValue)
         {
-            var result = new List<int>();
+            var result = new SortedSet<int>();
             var chunks = v.Split(',');
 
             foreach (var chunk in chunks)
             {
                 if (int.TryParse(chunk, out int parseInt))
-                    result.Add(parseInt);
+                {
+                    if (parseInt <= maxValue && parseInt >= sequenceStart)
+                            result.Add(parseInt);
+                    else
+                        throw new Exception("Malformed crontab string");
+                }
+                else if (chunk.Length == 1 && chunk == "*")
+                {
+                    result = ProcessStarCase(sequenceStart, maxValue);
+                }
                 else
-                    throw new Exception("Malformed crontab string");
+                {
+                    if (chunk.Contains("/"))
+                    {
+                        var divResults = ProcessDivisorCase(chunk, sequenceStart, maxValue);
+                        
+                        foreach(var divResult in divResults)
+                        {
+                            result.Add(divResult);
+                        }
+                    }
+                    else if (chunk.Contains("-"))
+                    {
+                        var rangeResults = ProcessRangeCase(chunk, sequenceStart, maxValue);
+
+                        foreach(var rangeResult in rangeResults)
+                        {
+                            result.Add(rangeResult);
+                        }
+                    }
+                    else
+                        throw new Exception("Malformed crontab string");
+                }
             }
 
             return result;
