@@ -10,7 +10,7 @@
     <Company>-</Company>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/MASACR99/Crontab-Sharp</RepositoryUrl>
-	<VersionPrefix>1.0.2</VersionPrefix>
+	<VersionPrefix>2.0.0</VersionPrefix>
 	<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 	<FileVersion>$(VersionPrefix)</FileVersion>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
