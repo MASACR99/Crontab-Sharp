@@ -1,7 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFrameworks> netstandard2.1;netstandard2.0</TargetFrameworks>
+	<TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
+	<Title>Crontab#</Title>
+	<PackageTags>Crontab; Cron; Timer</PackageTags>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<Description>Crontab# package for netstandard 2.0+, returns the time in milliseconds to the next execution based on the input crontab string or executes a given method based on a crontab string. See the README for more details</Description>
+	<Company>-</Company>
+	<Authors>MASA</Authors>
+	<Copyright>See LICENSE.md</Copyright>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<RepositoryUrl>https://github.com/MASACR99/Crontab-Sharp</RepositoryUrl>
+	<VersionPrefix>1.0.0</VersionPrefix>
+	<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
+	<FileVersion>$(VersionPrefix)</FileVersion>
+	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
+
+	<ItemGroup>
+		<None Include="..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="..\Crontab\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="..\Crontab\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 </Project>
