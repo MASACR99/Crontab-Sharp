@@ -13,7 +13,7 @@ Does:
 - Does this very fast
 
 Doesn't:
-- ~~Queue code executions~~ It now does as of V2 (reado more [here](#Version-2.0))
+- ~~Queue code executions~~ It now does as of V2 (read more [here](#Version-2.0))
 - Solve all your problems magically
 - Pay for my bills
 
